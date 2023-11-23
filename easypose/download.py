@@ -67,6 +67,4 @@ def download_model(model_file, detection_model=False, overwrite=True):
 
     download(url, save_path, overwrite)
 
-if __name__ == '__main__':
-    download_model("litehrnet_w18_heatmap_coco_256x192_20231009.onnx")
 
