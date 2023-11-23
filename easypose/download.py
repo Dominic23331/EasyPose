@@ -3,17 +3,10 @@ import requests
 
 from tqdm import tqdm
 
-from __version__ import __version__
+from .consts import ROOT_PATH, ROOT_URL, VERSION
 
 
-ROOT_PATH = "~/.easypose"
-ROOT_URL = "https://huggingface.co/dominic23331/easypose/resolve/main"
-VERSION = __version__
-
-os.environ["http_proxy"] = "http://127.0.0.1:4780"
-os.environ["https_proxy"] = "http://127.0.0.1:4780"
-
-def download(url, save_path, overwrite=True):
+def download(url, save_path, overwrite=False):
     save_path = os.path.expanduser(save_path)
     save_name = url.split("/")[-1]
 
@@ -44,7 +37,7 @@ def download(url, save_path, overwrite=True):
                     f.write(chunk)
 
 
-def download_model(model_file, detection_model=False, overwrite=True):
+def download_model(model_file, detection_model=False, overwrite=False):
     model_info = model_file.split("_")
     model_name = model_info[0]
     model_type = model_info[1]
