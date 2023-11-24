@@ -55,6 +55,16 @@ class AvailableDetModels(object):
                     'file_name': 'rtmdet_tiny_coco_640x640_20231123.onnx',
                     'type': 'rtmdet'
                 }
+            },
+            'yolov8': {
+                'n': {
+                    'file_name': 'yolov8_n_coco_640x640_20231124.onnx',
+                    'type': 'ultralytics'
+                },
+                's': {
+                    'file_name': 'yolov8_s_coco_640x640_20231124.onnx',
+                    'type': 'ultralytics'
+                }
             }
         }
     )

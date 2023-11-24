@@ -28,7 +28,7 @@ class RTMDet(BaseModel):
         box[:, 1] -= self.dy
         box[:, 3] -= self.dy
 
-        box = np.clip(box, a_min=0)
+        box = np.clip(box, a_min=0, a_max=None)
         box[:, :4] /= self.scale
 
         return box
