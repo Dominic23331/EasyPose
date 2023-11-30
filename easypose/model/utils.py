@@ -1,3 +1,5 @@
+from itertools import product
+
 import cv2
 import numpy as np
 
@@ -56,3 +58,114 @@ def nms(boxes, iou_threshold, conf_threshold):
         boxes = b
 
     return np.array(result)
+
+
+def get_heatmap_points(heatmap):
+    keypoints = np.zeros([1, heatmap.shape[0], 3], dtype=np.float32)
+    for i in range(heatmap.shape[0]):
+        h, w = np.where(heatmap[i] == heatmap[i].max())
+        h, w = h[0], w[0]
+        h_fixed = h + 0.5
+        w_fixed = w + 0.5
+        score = heatmap[i][h][w]
+        keypoints[0][i][0] = w_fixed
+        keypoints[0][i][1] = h_fixed
+        keypoints[0][i][2] = score
+    return keypoints
+
+
+def gaussian_blur(heatmaps, kernel=11):
+    assert kernel % 2 == 1
+
+    border = (kernel - 1) // 2
+    K, H, W = heatmaps.shape
+
+    for k in range(K):
+        origin_max = np.max(heatmaps[k])
+        dr = np.zeros((H + 2 * border, W + 2 * border), dtype=np.float32)
+        dr[border:-border, border:-border] = heatmaps[k].copy()
+        dr = cv2.GaussianBlur(dr, (kernel, kernel), 0)
+        heatmaps[k] = dr[border:-border, border:-border].copy()
+        heatmaps[k] *= origin_max / np.max(heatmaps[k])
+    return heatmaps
+
+
+def refine_keypoints(keypoints, heatmaps):
+    N, K = keypoints.shape[:2]
+    H, W = heatmaps.shape[:2]
+
+    for n, k in product(range(N), range(K)):
+        x, y = keypoints[n, k, :2].astype(int)
+
+        if 1 < x < W - 1 and 0 < y < H:
+            dx = heatmaps[k, y, x + 1] - heatmaps[k, y, x - 1]
+        else:
+            dx = 0.
+
+        if 1 < y < H - 1 and 0 < x < W:
+            dy = heatmaps[k, y + 1, x] - heatmaps[k, y - 1, x]
+        else:
+            dy = 0.
+
+        keypoints[n, k] += np.sign([dx, dy], dtype=np.float32) * 0.25
+
+    return keypoints
+
+
+def refine_keypoints_dark(keypoints, heatmaps, blur_kernel_size=11):
+    N, K = keypoints.shape[:2]
+    H, W = heatmaps.shape[1:]
+
+    # modulate heatmaps
+    heatmaps = gaussian_blur(heatmaps, blur_kernel_size)
+    np.maximum(heatmaps, 1e-10, heatmaps)
+    np.log(heatmaps, heatmaps)
+
+    for n, k in product(range(N), range(K)):
+        x, y = keypoints[n, k, :2].astype(int)
+        if 1 < x < W - 2 and 1 < y < H - 2:
+            dx = 0.5 * (heatmaps[k, y, x + 1] - heatmaps[k, y, x - 1])
+            dy = 0.5 * (heatmaps[k, y + 1, x] - heatmaps[k, y - 1, x])
+
+            dxx = 0.25 * (
+                    heatmaps[k, y, x + 2] - 2 * heatmaps[k, y, x] +
+                    heatmaps[k, y, x - 2])
+            dxy = 0.25 * (
+                    heatmaps[k, y + 1, x + 1] - heatmaps[k, y - 1, x + 1] -
+                    heatmaps[k, y + 1, x - 1] + heatmaps[k, y - 1, x - 1])
+            dyy = 0.25 * (
+                    heatmaps[k, y + 2, x] - 2 * heatmaps[k, y, x] +
+                    heatmaps[k, y - 2, x])
+            derivative = np.array([[dx], [dy]])
+            hessian = np.array([[dxx, dxy], [dxy, dyy]])
+            if dxx * dyy - dxy ** 2 != 0:
+                hessianinv = np.linalg.inv(hessian)
+                offset = -hessianinv @ derivative
+                offset = np.squeeze(np.array(offset.T), axis=0)
+                keypoints[n, k, :2] += offset
+    return keypoints
+
+
+def get_real_keypoints(keypoints, heatmaps, img_size):
+    img_h, img_w = img_size
+    heatmap_h, heatmap_w = heatmaps.shape[1:]
+    heatmap_ratio = heatmaps.shape[1] / heatmaps.shape[2]
+    img_ratio = img_h / img_w
+    if heatmap_ratio > img_ratio:
+        resize_w = img_w
+        resize_h = int(img_w * heatmap_ratio)
+    elif heatmap_ratio < img_ratio:
+        resize_h = img_h
+        resize_w = int(img_h / heatmap_ratio)
+    else:
+        resize_w = img_w
+        resize_h = img_h
+
+    keypoints[:, :, 0] = (keypoints[:, :,0] / heatmap_w) * resize_w - (resize_w - img_w) / 2
+    keypoints[:, :, 1] = (keypoints[:, :, 1] / heatmap_h) * resize_h - (resize_h - img_h) / 2
+
+    return keypoints
+
+
+def simcc_decoder(simcc_x, simcc_y):
+    pass

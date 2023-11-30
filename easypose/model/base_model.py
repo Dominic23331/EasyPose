@@ -14,7 +14,9 @@ class BaseModel(ABC):
         else:
             raise ValueError('Provider {} does not exist.'.format(device))
 
-        self.session = ort.InferenceSession(model_path, providers=[provider])
+        self.session = ort.InferenceSession(model_path,
+                                            providers=[provider],
+                                            sess_options=self.opt)
 
         self.input_name = self.session.get_inputs()[0].name
         self.input_shape = self.session.get_inputs()[0].shape
