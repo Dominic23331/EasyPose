@@ -161,11 +161,28 @@ def get_real_keypoints(keypoints, heatmaps, img_size):
         resize_w = img_w
         resize_h = img_h
 
-    keypoints[:, :, 0] = (keypoints[:, :,0] / heatmap_w) * resize_w - (resize_w - img_w) / 2
+    keypoints[:, :, 0] = (keypoints[:, :, 0] / heatmap_w) * resize_w - (resize_w - img_w) / 2
     keypoints[:, :, 1] = (keypoints[:, :, 1] / heatmap_h) * resize_h - (resize_h - img_h) / 2
 
     return keypoints
 
 
-def simcc_decoder(simcc_x, simcc_y):
-    pass
+def simcc_decoder(simcc_x, simcc_y, input_size, dx, dy, scale):
+    x = np.argmax(simcc_x, axis=-1, keepdims=True).astype(np.float32)
+    y = np.argmax(simcc_y, axis=-1, keepdims=True).astype(np.float32)
+
+    x_conf = np.max(simcc_x, axis=-1, keepdims=True)
+    y_conf = np.max(simcc_y, axis=-1, keepdims=True)
+    conf = (x_conf + y_conf) / 2
+
+    x /= simcc_x.shape[-1]
+    y /= simcc_y.shape[-1]
+    x *= input_size[1]
+    y *= input_size[0]
+
+    keypoints = np.concatenate([x, y, conf], axis=-1)
+    keypoints[..., 0] -= dx
+    keypoints[..., 1] -= dy
+    keypoints[..., :2] /= scale
+
+    return keypoints

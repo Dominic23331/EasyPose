@@ -1,12 +1,12 @@
 import numpy as np
 
 from .base_model import BaseModel
-from .utils import letterbox
+from .utils import letterbox, simcc_decoder
 
 
-class RTMDet(BaseModel):
+class SimCC(BaseModel):
     def __init__(self, model_path, device='CUDA'):
-        super(RTMDet, self).__init__(model_path, device)
+        super(SimCC, self).__init__(model_path, device)
         self.dx = 0
         self.dy = 0
         self.scale = 0
@@ -19,16 +19,13 @@ class RTMDet(BaseModel):
         return tensor
 
     def postprocess(self, tensor):
-        box = tensor[0][:, :-1]
-        label = tensor[0][:, :-1]
-        box = box[label == 0]
+        simcc_x, simcc_y = tensor
+        simcc_x = np.squeeze(simcc_x, axis=0)
+        simcc_y = np.squeeze(simcc_y, axis=0)
+        keypoints = simcc_decoder(simcc_x,
+                                  simcc_y,
+                                  self.input_shape[2:],
+                                  self.dx,
+                                  self.dy,
+                                  self.scale)
 
-        box[:, 0] -= self.dx
-        box[:, 2] -= self.dx
-        box[:, 1] -= self.dy
-        box[:, 3] -= self.dy
-
-        box = np.clip(box, a_min=0, a_max=None)
-        box[:, :4] /= self.scale
-
-        return box
