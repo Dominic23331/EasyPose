@@ -29,3 +29,4 @@ class SimCC(BaseModel):
                                   self.dy,
                                   self.scale)
 
+        return keypoints
