@@ -1,10 +1,11 @@
 from itertools import product
+from typing import Sequence
 
 import cv2
 import numpy as np
 
 
-def letterbox(img, target_size, fill_value=128):
+def letterbox(img: np.ndarray, target_size: Sequence[int], fill_value: int = 128):
     h, w = img.shape[:2]
     tw, th = target_size
 
@@ -21,7 +22,7 @@ def letterbox(img, target_size, fill_value=128):
     return canvas, dx, dy, scale
 
 
-def intersection_over_union(box1, box2):
+def intersection_over_union(box1: np.ndarray, box2: np.ndarray):
     area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
     area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
 
@@ -37,7 +38,7 @@ def intersection_over_union(box1, box2):
     return iou
 
 
-def nms(boxes, iou_threshold, conf_threshold):
+def nms(boxes: np.ndarray, iou_threshold: float, conf_threshold: float):
     conf = boxes[..., 4] > conf_threshold
     boxes = boxes[conf]
     boxes = list(boxes)
@@ -60,7 +61,7 @@ def nms(boxes, iou_threshold, conf_threshold):
     return np.array(result)
 
 
-def get_heatmap_points(heatmap):
+def get_heatmap_points(heatmap: np.ndarray):
     keypoints = np.zeros([1, heatmap.shape[0], 3], dtype=np.float32)
     for i in range(heatmap.shape[0]):
         h, w = np.where(heatmap[i] == heatmap[i].max())
@@ -74,7 +75,7 @@ def get_heatmap_points(heatmap):
     return keypoints
 
 
-def gaussian_blur(heatmaps, kernel=11):
+def gaussian_blur(heatmaps: np.ndarray, kernel: int = 11):
     assert kernel % 2 == 1
 
     border = (kernel - 1) // 2
@@ -90,7 +91,7 @@ def gaussian_blur(heatmaps, kernel=11):
     return heatmaps
 
 
-def refine_keypoints(keypoints, heatmaps):
+def refine_keypoints(keypoints: np.ndarray, heatmaps: np.ndarray):
     N, K = keypoints.shape[:2]
     H, W = heatmaps.shape[:2]
 
@@ -112,7 +113,7 @@ def refine_keypoints(keypoints, heatmaps):
     return keypoints
 
 
-def refine_keypoints_dark(keypoints, heatmaps, blur_kernel_size=11):
+def refine_keypoints_dark(keypoints: np.ndarray, heatmaps: np.ndarray, blur_kernel_size: int = 11):
     N, K = keypoints.shape[:2]
     H, W = heatmaps.shape[1:]
 
@@ -146,7 +147,7 @@ def refine_keypoints_dark(keypoints, heatmaps, blur_kernel_size=11):
     return keypoints
 
 
-def get_real_keypoints(keypoints, heatmaps, img_size):
+def get_real_keypoints(keypoints: np.ndarray, heatmaps: np.ndarray, img_size: Sequence[int]):
     img_h, img_w = img_size
     heatmap_h, heatmap_w = heatmaps.shape[1:]
     heatmap_ratio = heatmaps.shape[1] / heatmaps.shape[2]
@@ -164,10 +165,17 @@ def get_real_keypoints(keypoints, heatmaps, img_size):
     keypoints[:, :, 0] = (keypoints[:, :, 0] / heatmap_w) * resize_w - (resize_w - img_w) / 2
     keypoints[:, :, 1] = (keypoints[:, :, 1] / heatmap_h) * resize_h - (resize_h - img_h) / 2
 
+    keypoints = np.squeeze(keypoints, axis=0)
+
     return keypoints
 
 
-def simcc_decoder(simcc_x, simcc_y, input_size, dx, dy, scale):
+def simcc_decoder(simcc_x: np.ndarray,
+                  simcc_y: np.ndarray,
+                  input_size: Sequence[int],
+                  dx: int,
+                  dy: int,
+                  scale: float):
     x = np.argmax(simcc_x, axis=-1, keepdims=True).astype(np.float32)
     y = np.argmax(simcc_y, axis=-1, keepdims=True).astype(np.float32)
 

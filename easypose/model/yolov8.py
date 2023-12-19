@@ -5,8 +5,13 @@ from .utils import letterbox, nms
 
 
 class Yolov8(BaseModel):
-    def __init__(self, model_path, conf_threshold, iou_threshold, device='CUDA'):
-        super(Yolov8, self).__init__(model_path, device)
+    def __init__(self,
+                 model_path: str,
+                 conf_threshold: float,
+                 iou_threshold: float,
+                 device: str = 'CUDA',
+                 warmup: int = 30):
+        super(Yolov8, self).__init__(model_path, device, warmup)
         self.conf_threshold = conf_threshold
         self.iou_threshold = iou_threshold
         self.dx = 0

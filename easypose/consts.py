@@ -12,30 +12,30 @@ class AvailablePoseModels(object):
     POSE_MODELS = OrderedDict(
         {
             'litehrnet_w18': {
-                'heatmap': {
+                'Heatmap': {
                     'file_name': 'litehrnet_w18_heatmap_coco_256x192_20231009.onnx'
                 }
             },
             'litehrnet_w30': {
-                'heatmap': {
+                'Heatmap': {
                     'file_name': 'litehrnet_w30_heatmap_coco_256x192_20231009.onnx'
                 }
             },
             'resnet50': {
-                'heatmap': {
+                'Heatmap': {
                     'file_name': 'resnet_heatmap_coco_256x192_20231009.onnx'
                 },
-                'simcc': {
+                'SimCC': {
                     'file_name': 'resnet_simcc_coco_256x192_20231009.onnx'
                 }
             },
             'rtmpose-tiny': {
-                'simcc': {
+                'SimCC': {
                     'file_name': 'rtmpose_tiny_simcc_coco_256x192_20231009.onnx'
                 }
             },
             'rtmpose-s': {
-                'simcc': {
+                'SimCC': {
                     'file_name': 'rtmpose_s_simcc_coco_256x192_20231009.onnx'
                 }
             }
@@ -46,25 +46,21 @@ class AvailablePoseModels(object):
 class AvailableDetModels(object):
     DET_MODELS = OrderedDict(
         {
-            'rtmdet': {
-                's': {
-                    'file_name': 'rtmdet_s_coco_640x640_20231123.onnx',
-                    'type': 'rtmdet'
-                },
-                'tiny': {
-                    'file_name': 'rtmdet_tiny_coco_640x640_20231123.onnx',
-                    'type': 'rtmdet'
-                }
+            'rtmdet_s': {
+                'file_name': 'rtmdet_s_coco_640x640_20231123.onnx',
+                'model_type': 'RTMDet',
             },
-            'yolov8': {
-                'n': {
-                    'file_name': 'yolov8_n_coco_640x640_20231124.onnx',
-                    'type': 'ultralytics'
-                },
-                's': {
-                    'file_name': 'yolov8_s_coco_640x640_20231124.onnx',
-                    'type': 'ultralytics'
-                }
+            'rtmdet_tiny': {
+                'file_name': 'rtmdet_tiny_coco_640x640_20231123.onnx',
+                'model_type': 'RTMDet',
+            },
+            'yolov8_n': {
+                'file_name': 'yolov8_n_coco_640x640_20231124.onnx',
+                'model_type': 'Yolov8',
+            },
+            'yolov8_s': {
+                'file_name': 'yolov8_s_coco_640x640_20231124.onnx',
+                'model_type': 'Yolov8',
             }
         }
     )
