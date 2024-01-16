@@ -4,6 +4,7 @@ from typing import List
 
 import numpy as np
 import onnxruntime as ort
+from tqdm import tqdm
 
 
 class BaseModel(ABC):
@@ -45,8 +46,9 @@ class BaseModel(ABC):
         return output
 
     def warmup(self, epoch: int = 30):
-        tensor = np.random.random(self.input_shape)
-        for i in range(epoch):
+        print('{} start warmup!'.format(self.__class__.__name__))
+        tensor = np.random.random(self.input_shape).astype(np.float32)
+        for _ in tqdm(range(epoch)):
             self.session.run(None, {self.input_name: tensor})
 
     def __call__(self, image: np.ndarray, *args, **kwargs):

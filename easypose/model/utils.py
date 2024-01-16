@@ -38,6 +38,13 @@ def intersection_over_union(box1: np.ndarray, box2: np.ndarray):
     return iou
 
 
+def xywh2xyxy(boxes):
+    boxes[:, 0] -= boxes[:, 2] / 2
+    boxes[:, 1] -= boxes[:, 3] / 2
+    boxes[:, 2] += boxes[:, 0]
+    boxes[:, 3] += boxes[:, 1]
+    return boxes
+
 def nms(boxes: np.ndarray, iou_threshold: float, conf_threshold: float):
     conf = boxes[..., 4] > conf_threshold
     boxes = boxes[conf]
@@ -64,7 +71,7 @@ def nms(boxes: np.ndarray, iou_threshold: float, conf_threshold: float):
 def get_heatmap_points(heatmap: np.ndarray):
     keypoints = np.zeros([1, heatmap.shape[0], 3], dtype=np.float32)
     for i in range(heatmap.shape[0]):
-        h, w = np.where(heatmap[i] == heatmap[i].max())
+        h, w = np.nonzero(heatmap[i] == heatmap[i].max())
         h, w = h[0], w[0]
         h_fixed = h + 0.5
         w_fixed = w + 0.5
@@ -108,7 +115,7 @@ def refine_keypoints(keypoints: np.ndarray, heatmaps: np.ndarray):
         else:
             dy = 0.
 
-        keypoints[n, k] += np.sign([dx, dy], dtype=np.float32) * 0.25
+        keypoints[n, k] += np.sign([dx, dy, 0], dtype=np.float32) * 0.25
 
     return keypoints
 

@@ -1,9 +1,10 @@
+import os
 from collections import OrderedDict
 
-from __version__ import __version__
+from .__version__ import __version__
 
-
-ROOT_PATH = "~/.easypose"
+home = os.path.expanduser("~")
+ROOT_PATH = os.path.join(home, ".easypose")
 ROOT_URL = "https://huggingface.co/dominic23331/easypose/resolve/main"
 VERSION = __version__
 
@@ -11,33 +12,22 @@ VERSION = __version__
 class AvailablePoseModels(object):
     POSE_MODELS = OrderedDict(
         {
-            'litehrnet_w18': {
-                'Heatmap': {
-                    'file_name': 'litehrnet_w18_heatmap_coco_256x192_20231009.onnx'
-                }
+            'hrnet': {
+                'Heatmap': 'hrnet_heatmap_coco_256x192_20240115.onnx',
+                'Dark': 'hrnet_dark_coco_256x192_20240115.onnx',
             },
-            'litehrnet_w30': {
-                'Heatmap': {
-                    'file_name': 'litehrnet_w30_heatmap_coco_256x192_20231009.onnx'
-                }
+            'litehrnet': {
+                'Heatmap': 'litehrnet_heatmap_coco_256x192_20231009.onnx',
             },
             'resnet50': {
-                'Heatmap': {
-                    'file_name': 'resnet_heatmap_coco_256x192_20231009.onnx'
-                },
-                'SimCC': {
-                    'file_name': 'resnet_simcc_coco_256x192_20231009.onnx'
-                }
+                'Heatmap': 'resnet_heatmap_coco_256x192_20231009.onnx',
+                'SimCC': 'resnet_simcc_coco_256x192_20231009.onnx',
             },
             'rtmpose-tiny': {
-                'SimCC': {
-                    'file_name': 'rtmpose_tiny_simcc_coco_256x192_20231009.onnx'
-                }
+                'SimCC': 'rtmpose_t_simcc_coco_256x192_20231009.onnx',
             },
             'rtmpose-s': {
-                'SimCC': {
-                    'file_name': 'rtmpose_s_simcc_coco_256x192_20231009.onnx'
-                }
+                'SimCC': 'rtmpose_s_simcc_coco_256x192_20231009.onnx',
             }
         }
     )
@@ -47,11 +37,11 @@ class AvailableDetModels(object):
     DET_MODELS = OrderedDict(
         {
             'rtmdet_s': {
-                'file_name': 'rtmdet_s_coco_640x640_20231123.onnx',
+                'file_name': 'rtmdet_s_coco_640x640_20231209.onnx',
                 'model_type': 'RTMDet',
             },
             'rtmdet_tiny': {
-                'file_name': 'rtmdet_tiny_coco_640x640_20231123.onnx',
+                'file_name': 'rtmdet_tiny_coco_640x640_20231209.onnx',
                 'model_type': 'RTMDet',
             },
             'yolov8_n': {
@@ -64,6 +54,49 @@ class AvailableDetModels(object):
             }
         }
     )
+
+
+def print_list(lst):
+    if not lst:
+        print("Input list is empty.")
+        return
+
+    # 打印列表头
+    print("Index | Value")
+    print("-" * 15)
+
+    # 打印列表元素
+    for index, value in enumerate(lst):
+        print(f"{index:<6} | {value}")
+
+
+def print_dict_as_table(input_dict):
+    if not input_dict:
+        print("Input dictionary is empty.")
+        return
+
+    # 获取最长键的长度
+    max_key_length = max(len(str(key)) for key in input_dict.keys())
+
+    # 打印表头
+    print(f"{'Key':<{max_key_length}} | Value")
+    print("-" * (max_key_length + 8))  # 8 是为了留出空格
+
+    # 打印键值对
+    for key, value in input_dict.items():
+        print(f"{str(key):<{max_key_length}} | {value}")
+
+
+def det_model_list():
+    det_models = list(AvailableDetModels.DET_MODELS.keys())
+    print_list(det_models)
+
+def pose_model_list():
+    pose_model = {}
+    models = list(AvailablePoseModels.POSE_MODELS.keys())
+    for i in range(len(models)):
+        pose_model[models[i]] = list(AvailablePoseModels.POSE_MODELS[models[i]].keys())
+    print_dict_as_table(pose_model)
 
 
 coco_skeleton = [

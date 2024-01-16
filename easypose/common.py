@@ -33,18 +33,13 @@ def draw_keypoints(image,
                    box_color=(0, 0, 255),
                    box_thickness=5,
                    draw_box=False):
-    def draw(img,
-             kp,
-             r,
-             t,
-             color,
-             l_color):
+    def draw(img, kp, r, t, color, l_color):
         for p1, p2 in coco_skeleton:
-            cv2.rectangle(img,
-                          (int(kp.keypoints[p1][0]), int(kp.keypoints[p1][1])),
-                          (int(kp.keypoints[p2][0]), int(kp.keypoints[p2][1])),
-                          color=l_color,
-                          thickness=r)
+            cv2.line(img,
+                     (int(kp.keypoints[p1][0]), int(kp.keypoints[p1][1])),
+                     (int(kp.keypoints[p2][0]), int(kp.keypoints[p2][1])),
+                     color=l_color,
+                     thickness=r)
         for point in kp.keypoints:
             cv2.circle(img,
                        (int(point[0]), int(point[1])),
