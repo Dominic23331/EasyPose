@@ -159,7 +159,7 @@ class CustomTopDown:
                  iou_threshold=0.6,
                  conf_threshold=0.6,
                  warmup=30):
-        if issubclass(pose_model, model.BaseModel):
+        if isinstance(pose_model, model.BaseModel):
             self.pose_model = pose_model
         elif isinstance(pose_model, str):
             if pose_model not in AvailablePoseModels.POSE_MODELS:
@@ -191,7 +191,7 @@ class CustomTopDown:
         else:
             raise TypeError("Invalid type for pose model, Please write a custom model based on 'BaseModel'.")
 
-        if issubclass(det_model, model.BaseModel):
+        if isinstance(det_model, model.BaseModel):
             self.det_model = det_model
         elif isinstance(det_model, str):
             if det_model not in AvailableDetModels.DET_MODELS:
@@ -249,7 +249,7 @@ class CustomTopDown:
 
 class CustomSinglePose:
     def __init__(self, pose_model):
-        if issubclass(pose_model, model.BaseModel):
+        if isinstance(pose_model, model.BaseModel):
             self.pose_model = pose_model
         else:
             raise TypeError("Invalid type for pose model, Please write a custom model based on 'BaseModel'.")
