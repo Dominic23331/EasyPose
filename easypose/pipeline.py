@@ -151,14 +151,86 @@ class Pose:
 
 
 class CustomTopDown:
-    def __init__(self, pose_model, det_model):
+    def __init__(self,
+                 pose_model,
+                 det_model,
+                 pose_decoder=None,
+                 device='CUDA',
+                 iou_threshold=0.6,
+                 conf_threshold=0.6,
+                 warmup=30):
         if issubclass(pose_model, model.BaseModel):
             self.pose_model = pose_model
+        elif isinstance(pose_model, str):
+            if pose_model not in AvailablePoseModels.POSE_MODELS:
+                raise ValueError(
+                    'The {} human pose estimation model is not in the model repository.'.format(pose_model))
+            if pose_model not in AvailablePoseModels.POSE_MODELS[pose_model]:
+                raise ValueError(
+                    'No {} decoding head for the {} model was found in the model repository.'.format(pose_decoder,
+                                                                                                     pose_model))
+
+            pose_model_dir = get_model_path(AvailablePoseModels.POSE_MODELS[pose_model][pose_decoder],
+                                            detection_model=False)
+            pose_model_path = os.path.join(pose_model_dir,
+                                           AvailablePoseModels.POSE_MODELS[pose_model][pose_decoder])
+
+            if os.path.exists(pose_model_path):
+                try:
+                    self.pose_model = get_pose_model(pose_model_path, pose_decoder, device, warmup)
+                except Exception:
+                    url = get_url(AvailablePoseModels.POSE_MODELS[pose_model][pose_decoder],
+                                  detection_model=False)
+                    download(url, pose_model_dir)
+                    self.pose_model = get_pose_model(pose_model_path, pose_decoder, device, warmup)
+            else:
+                url = get_url(AvailablePoseModels.POSE_MODELS[pose_model][pose_decoder],
+                              detection_model=False)
+                download(url, pose_model_dir)
+                self.pose_model = get_pose_model(pose_model_path, pose_decoder, device, warmup)
         else:
             raise TypeError("Invalid type for pose model, Please write a custom model based on 'BaseModel'.")
 
         if issubclass(det_model, model.BaseModel):
             self.det_model = det_model
+        elif isinstance(det_model, str):
+            if det_model not in AvailableDetModels.DET_MODELS:
+                raise ValueError(
+                    'The {} detection model is not in the model repository.'.format(det_model))
+
+            det_model_dir = get_model_path(AvailableDetModels.DET_MODELS[det_model]['file_name'],
+                                           detection_model=True)
+            det_model_path = os.path.join(det_model_dir,
+                                          AvailableDetModels.DET_MODELS[det_model]['file_name'])
+            det_model_type = AvailableDetModels.DET_MODELS[det_model]['model_type']
+            if os.path.exists(det_model_path):
+                try:
+                    self.det_model = get_det_model(det_model_path,
+                                                   det_model_type,
+                                                   conf_threshold,
+                                                   iou_threshold,
+                                                   device,
+                                                   warmup)
+                except Exception:
+                    url = get_url(AvailableDetModels.DET_MODELS[det_model]['file_name'],
+                                  detection_model=True)
+                    download(url, det_model_dir)
+                    self.det_model = get_det_model(det_model_path,
+                                                   det_model_type,
+                                                   conf_threshold,
+                                                   iou_threshold,
+                                                   device,
+                                                   warmup)
+            else:
+                url = get_url(AvailableDetModels.DET_MODELS[det_model]['file_name'],
+                              detection_model=True)
+                download(url, det_model_dir)
+                self.det_model = get_det_model(det_model_path,
+                                               det_model_type,
+                                               conf_threshold,
+                                               iou_threshold,
+                                               device,
+                                               warmup)
         else:
             raise TypeError("Invalid type for detection model, Please write a custom model based on 'BaseModel'.")
 
