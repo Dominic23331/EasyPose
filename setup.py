@@ -15,6 +15,13 @@ install_requires = [
     'tqdm'
 ]
 
+gpu_support = True
+
+if gpu_support:
+    install_requires.append("onnxruntime-gpu")
+else:
+    install_requires.append("onnxruntime")
+
 # 使用setuptools库进行打包配置
 setup(
     name=name,

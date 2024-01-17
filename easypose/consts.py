@@ -70,7 +70,7 @@ def print_list(lst):
         print(f"{index:<6} | {value}")
 
 
-def print_dict_as_table(input_dict):
+def print_dict(input_dict):
     if not input_dict:
         print("Input dictionary is empty.")
         return
@@ -96,7 +96,7 @@ def pose_model_list():
     models = list(AvailablePoseModels.POSE_MODELS.keys())
     for i in range(len(models)):
         pose_model[models[i]] = list(AvailablePoseModels.POSE_MODELS[models[i]].keys())
-    print_dict_as_table(pose_model)
+    print_dict(pose_model)
 
 
 coco_skeleton = [
