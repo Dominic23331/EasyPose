@@ -23,10 +23,10 @@ class AvailablePoseModels(object):
                 'Heatmap': 'resnet_heatmap_coco_256x192_20231009.onnx',
                 'SimCC': 'resnet_simcc_coco_256x192_20231009.onnx',
             },
-            'rtmpose-tiny': {
+            'rtmpose_tiny': {
                 'SimCC': 'rtmpose_t_simcc_coco_256x192_20231009.onnx',
             },
-            'rtmpose-s': {
+            'rtmpose_s': {
                 'SimCC': 'rtmpose_s_simcc_coco_256x192_20231009.onnx',
             }
         }
