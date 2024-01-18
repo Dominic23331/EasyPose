@@ -28,6 +28,19 @@ class AvailablePoseModels(object):
             },
             'rtmpose_s': {
                 'SimCC': 'rtmpose_s_simcc_coco_256x192_20231009.onnx',
+            },
+            'rtmpose_m': {
+                'SimCC': 'rtmpose_m_simcc_coco_256x192_20240118.onnx',
+            },
+            'rtmpose_l': {
+                'SimCC': 'rtmpose_l_simcc_coco_256x192_20240118.onnx',
+            },
+            'mbv2': {
+                'Heatmap': 'mbv2_heatmap_coco_256x192_20240118.onnx',
+                'SimCC': 'mbv2_simcc_coco_256x192_20240118.onnx',
+            },
+            'hourglass': {
+                'Heatmap': 'hourglass_heatmap_coco_256x192_20240118.onnx',
             }
         }
     )
