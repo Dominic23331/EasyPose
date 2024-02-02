@@ -32,6 +32,9 @@ class RTMDet(BaseModel):
         boxes[..., [4, 5]] = boxes[..., [5, 4]]
 
         boxes = nms(boxes, self.iou_threshold, self.conf_threshold)
+        
+        if boxes.shape[0] == 0:
+            return boxes
 
         human_class = boxes[..., -1] == 0
         boxes = boxes[human_class][..., :4]
@@ -79,6 +82,9 @@ class Yolov8(BaseModel):
 
         boxes = xywh2xyxy(boxes)
         boxes = nms(boxes, self.iou_threshold, self.conf_threshold)
+
+        if boxes.shape[0] == 0:
+            return boxes
 
         human_class = boxes[..., -1] == 0
         boxes = boxes[human_class][..., :4]
